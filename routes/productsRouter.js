@@ -22,7 +22,6 @@ router.get(
     try {
       const { id } = req.params;
       const product = await service.findOne(id);
-      console.log(product);
       res.json(product);
     } catch (error) {
       next(error);
