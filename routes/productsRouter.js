@@ -4,37 +4,46 @@ const ProductsService = require("../services/productsService");
 
 const service = new ProductsService();
 
-router.get("/", (req, res) => {
-  const products = service.find();
+router.get("/", async (req, res) => {
+  const products = await service.find();
   res.json(products);
 });
 
-router.get("/:id", (req, res) => {
-  const { id } = req.params;
-  const product = service.findOne(id);
-  res.json(product);
+router.get("/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const product = await service.findOne(id);
+    console.log(product);
+    res.json(product);
+  } catch (error) {
+    next(error);
+  }
 });
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   const body = req.body;
-  const dataNewProduct = service.create(body);
+  const dataNewProduct = await service.create(body);
   res.status(201).json({
     message: "Created",
     data: dataNewProduct,
   });
 });
 
-router.put("/:id", (req, res) => {
-  const {
-    body,
-    params: { id },
-  } = req;
-  const productUpdated = service.update(body, id);
-  res.json({
-    message: "Update with PUT",
-    data: productUpdated,
-    id,
-  });
+router.put("/:id", async (req, res, next) => {
+  try {
+    const {
+      body,
+      params: { id },
+    } = req;
+    const productUpdated = await service.update(body, id);
+    res.json({
+      message: "Update with PUT",
+      data: productUpdated,
+      id,
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 router.patch("/:id", (req, res) => {
@@ -50,11 +59,11 @@ router.patch("/:id", (req, res) => {
   });
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", async (req, res) => {
   const {
     params: { id },
   } = req;
-  const productDelete = service.delete(id);
+  await service.delete(id);
   res.json({
     message: "Delete",
     id,

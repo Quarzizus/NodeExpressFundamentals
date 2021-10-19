@@ -1,4 +1,5 @@
 const faker = require("faker");
+const boom = require("@hapi/boom");
 
 class ProductsServices {
   constructor() {
@@ -6,7 +7,7 @@ class ProductsServices {
     this.generate();
   }
 
-  generate() {
+  async generate() {
     const limit = 100;
     for (let i = 0; i < limit; i++) {
       this.products.push({
@@ -14,11 +15,12 @@ class ProductsServices {
         name: faker.commerce.productName(),
         price: Number(faker.commerce.price()),
         image: faker.image.imageUrl(),
+        isBlock: faker.datatype.boolean(),
       });
     }
   }
 
-  create(data) {
+  async create(data) {
     const newProduct = {
       id: faker.datatype.uuid(),
       ...data,
@@ -27,19 +29,29 @@ class ProductsServices {
     return newProduct;
   }
 
-  find() {
-    return this.products;
+  async find() {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(this.products);
+      }, 2000);
+    });
   }
 
-  findOne(id) {
-    return this.products.find((element) => element.id === id);
+  async findOne(id) {
+    const product = this.products.find((element) => element.id === id);
+    if (!product) {
+      throw boom.notFound("Product not found");
+    }
+    if (product.isBlock) {
+      throw boom.conflict("Product is block");
+    }
+    return product;
   }
 
-  update(changes, id) {
+  async update(changes, id) {
     const index = this.products.findIndex((element) => element.id === id);
-
     if (index === -1) {
-      throw new Error("Product not found");
+      throw boom.notFound("Product not found");
     }
     this.products[index] = {
       ...this.products[index],
@@ -47,11 +59,13 @@ class ProductsServices {
     };
   }
 
-  delete(id) {
+  async delete(id) {
     const index = this.products.findIndex((element) => element.id === id);
-    index === -1
-      ? new Error("Product not found")
-      : this.products.splice(index, 1);
+    if (index === -1) {
+      throw boom.notFound("Product not found");
+    } else {
+      this.products.splice(index, 1);
+    }
   }
 }
 
