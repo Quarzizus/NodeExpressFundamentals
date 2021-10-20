@@ -1,5 +1,7 @@
 const express = require("express");
+const cors = require("cors"); // middleware
 const app = express();
+
 const {
   errorHandler,
   logErrors,
@@ -10,6 +12,7 @@ const port = 3000;
 const routerAPI = require("./routes");
 
 app.use(express.json());
+app.use(cors()); // habilitar cualquier dominio
 
 app.get("/", (req, res) => {
   res.send("HOME");

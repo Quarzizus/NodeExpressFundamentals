@@ -7,7 +7,7 @@ class UsersService {
     this.generate();
   }
 
-  generate() {
+  async generate() {
     const users = Array.from({ length: 100 }, (user) => {
       return {
         id: faker.datatype.uuid(),
@@ -19,11 +19,15 @@ class UsersService {
     this.users.push(...users);
   }
 
-  find() {
-    return this.users;
+  async find() {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(this.users);
+      }, 1500);
+    });
   }
 
-  findOne(id) {
+  async findOne(id) {
     const user = this.users.find((user) => user.id === id);
     if (!user) {
       throw boom.notFound("Not found user");
@@ -31,7 +35,7 @@ class UsersService {
     return user;
   }
 
-  create(data) {
+  async create(data) {
     if (!Object.values(data).length) {
       throw boom.badData("Bad data");
     }
@@ -44,7 +48,7 @@ class UsersService {
     return newUser;
   }
 
-  update(id, changes) {
+  async update(id, changes) {
     const index = this.users.findIndex((user) => user.id === id);
     if (index === -1) {
       throw boom.notFound("Not found user");
@@ -57,7 +61,7 @@ class UsersService {
     return this.users[index];
   }
 
-  delete(id) {
+  async delete(id) {
     this.users.splice(id, 1);
   }
 }
